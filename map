@@ -1,0 +1,70 @@
+
+vector: -1.0f,-1.0f,-1.0f:
+
+vector:     -1.0f,-1.0f, 1.0f:
+
+ vector:    -1.0f, 1.0f, 1.0f: 
+
+ vector:    1.0f, 1.0f,-1.0f: 
+  vector:   -1.0f,-1.0f,-1.0f:
+
+  vector:   -1.0f, 1.0f,-1.0f: 
+  vector:   1.0f,-1.0f, 1.0f:
+
+  vector:   -1.0f,-1.0f,-1.0f:
+
+  vector:   1.0f,-1.0f,-1.0f:
+
+   vector:  1.0f, 1.0f,-1.0f:
+
+   vector:  1.0f,-1.0f,-1.0f:
+
+   vector:  -1.0f,-1.0f,-1.0f:
+
+    vector: -1.0f,-1.0f,-1.0f:
+
+    vector: -1.0f, 1.0f, 1.0f:
+
+    vector: -1.0f, 1.0f,-1.0f:
+
+   vector:  1.0f,-1.0f, 1.0f:
+
+   vector:  -1.0f,-1.0f, 1.0f:
+
+    vector: -1.0f,-1.0f,-1.0f:
+
+   vector:  -1.0f, 1.0f, 1.0f:
+
+   vector:  -1.0f,-1.0f, 1.0f:
+
+   vector:  1.0f,-1.0f, 1.0f:
+
+    vector: 1.0f, 1.0f, 1.0f:
+
+   vector:  1.0f,-1.0f,-1.0f:
+
+   vector:  1.0f, 1.0f,-1.0f:
+
+   vector:  1.0f,-1.0f,-1.0f:
+
+    vector: 1.0f, 1.0f, 1.0f:
+
+   vector:  1.0f,-1.0f, 1.0f:
+
+   vector:  1.0f, 1.0f, 1.0f:
+
+   vector:  1.0f, 1.0f,-1.0f:
+
+   vector:  -1.0f, 1.0f,-1.0f:
+
+   vector:  1.0f, 1.0f, 1.0f:
+
+   vector:  -1.0f, 1.0f,-1.0f:
+
+   vector:  -1.0f, 1.0f, 1.0f:
+
+   vector:  1.0f, 1.0f, 1.0f:
+
+   vector:  -1.0f, 1.0f, 1.0f:
+
+   vector:  1.0f,-1.0f, 1.0f:

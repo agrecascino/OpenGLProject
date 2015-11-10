@@ -1,0 +1,9 @@
+#version 330 core
+layout(location = 0) in vec4 vpos;
+out vec4 transcoord;
+uniform mat4 MVP;
+void main()
+{
+transcoord = MVP * vpos;
+gl_Position = MVP * vpos;
+}

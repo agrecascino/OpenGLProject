@@ -1,0 +1,4 @@
+#ifndef MODULEPLAYER_H
+#define MODULEPLAYER_H
+
+#endif // MODULEPLAYER_H

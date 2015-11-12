@@ -4,8 +4,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <thread>
+#include <chrono>
 #include <fstream>
 #include <cstdio>
+#include "moduleplayer.h"
 //#include <regex>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
@@ -135,10 +138,10 @@ class Camera
         ypos = 0;
         deltatime = glfwGetTime() - prevtime;
         glfwGetCursorPos(window,&xpos,&ypos);
-
+        cout << xpos << " " << ypos << endl;
         glfwSetCursorPos(window,800/2,600/2);
-        hangle += mousesens * deltatime *  (int)(400 - xpos);
-        vangle += mousesens * deltatime *   (int)(300 - ypos);
+        hangle += mousesens * deltatime *  (400 - xpos);
+        vangle += mousesens * deltatime *  (300 - ypos);
         direction = glm::vec3(cos(vangle)* sin(hangle),sin(vangle),cos(vangle)* cos(hangle));
         right = glm::vec3(sin(hangle - 3.14f/2.0f),0,cos(hangle - 3.14f/2.0f));
         up = glm::vec3(glm::cross(right,direction));
@@ -411,7 +414,7 @@ void loadmap(string mapfile)
            {
                bool isthere = false;
                unsigned int vertlocation;
-               cout << "we are at:" << k << endl;
+               //cout << "we are at:" << k << endl;
                for(int l =0;l < vecpusher.size(); l++)
                {
 
@@ -434,6 +437,8 @@ void loadmap(string mapfile)
         }
         if(valstring[j] == "music")
         {
+            thread t(playsong,valstring[j+1]);
+            t.detach();
             j++;
         }
     }
@@ -459,6 +464,15 @@ void render()
 }
 
 private:
+Entity Loadentity(string filename)
+{
+
+    Entity *returnthis = NULL;
+    fstream entityf(filename,ios::in);
+    entityf.close();
+    return *returnthis;
+}
+
 vector<Entity> entities;
 vector<glm::vec4> vec;
 Entity *entity = NULL;
@@ -480,6 +494,7 @@ void init3d()
  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
  glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned short),&indices[0], GL_STATIC_DRAW);
  currentmap.loadmap("map");
+ glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
    //posvec.push_back(glm::vec4(2.0,6.0,1.0,1.0));
  glClearColor(0.0,0.3,0.8,1.0);
  glGenBuffers(1,&buffer);
@@ -491,8 +506,9 @@ void init3d()
  glDepthFunc(GL_LEQUAL);
  glEnable(GL_POINT_SIZE);
  glPointSize(20.0f);
+ glfwSwapInterval(1);
  //glUniformMatrix4fv(MVPloc,1,GL_FALSE,&MVP[0][0]);
- glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_HIDDEN);
+ //glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_HIDDEN);
 }
 GLFWcursor* BlankCursor()
 {
@@ -519,7 +535,7 @@ int main()
     glewInit();
     init3d();
 
-    glfwSetCursor(window,BlankCursor());
+    //glfwSetCursor(window,BlankCursor());
     glfwSetInputMode(window,GLFW_STICKY_KEYS,GL_TRUE);
     while(!glfwWindowShouldClose(window) && !glfwGetKey(window,GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
@@ -546,6 +562,7 @@ int main()
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER,GL_BUFFER_SIZE, &bufsize);
     bufsize /= sizeof(unsigned short);
     //cant wake up
+    this_thread::sleep_for(chrono::milliseconds(8));
     glDrawElements(GL_TRIANGLES,indices.size(), GL_UNSIGNED_SHORT,(void*)0);
     }
 

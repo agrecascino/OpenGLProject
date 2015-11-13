@@ -16,7 +16,9 @@ unix|win32: LIBS += -lGLEW
 unix|win32: LIBS += -lglfw
 
 HEADERS += \
-    moduleplayer.h
+    moduleplayer.h \
+    entity.h \
+    itsnotok.h
 
 
 

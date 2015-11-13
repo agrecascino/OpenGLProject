@@ -6,130 +6,26 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include "itsnotok.h"
 #include <fstream>
 #include <cstdio>
 #include "moduleplayer.h"
 //#include <regex>
+#include "entity.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 using namespace std;
-GLFWwindow *window;
-GLuint buffer;
-GLuint varray;
-vector<glm::vec4> posvec;
-GLuint program;
-GLuint MVPloc;
-glm::mat4 MVP;
-vector<unsigned short> indices;
-vector<GLuint> ebuffer;
-class Entity
-{
-public:
-    Entity(float xp,float yp,float zp, int hp,vector<glm::vec4> data)
-    {
-        health = hp;
-        x=xp;
-        y=yp;
-        z = zp;
-        vertexdata = data;
-        originalx = x;
-        originaly = y;
-        originalz = z;
-        setxy(x,y,z);
-
-    }
-
-    void setxy(float xp, float yp, float zp)
-    {
-
-        x = xp;
-        y = yp;
-        z = zp;
-        if(xymod){
-        for(int i =0;i < vertexdata.size();i++)
-        {
-
-            vertexdata[i].x -= originalx;
-            vertexdata[i].y -= originaly;
-            vertexdata[i].z -= originalz;
-        }
-        }
-        for(int i =0;i < vertexdata.size();i++)
-        {
-
-            vertexdata[i].x += xp;
-            vertexdata[i].y += yp;
-            vertexdata[i].z += zp;
-        }
-        xymod = true;
-    }
-    void sethp(int hp)
-    {
-     hp = health;
-    }
-    int gethp(){return health;}
-    int getx(){return x;}
-    int gety(){return y;}
-    int getz(){return z;}
-    void setdata(vector<glm::vec4> data)
-    {
-        vertexdata = data;
-        setup =false;
-    }
-    void setupindexdata()
-    {
-        indexdata.erase(indexdata.begin(),indexdata.end());
-        bool pushed = false;
-        for(int i = 0;i < vertexdata.size();i++)
-        {
-            pushed = false;
-            for(int j =0;j < vertexdata.size();j++)
-            {
-                if(vertexdata[i] == vertexdata[j])
-                {
-
-                    indexdata.push_back((unsigned short)(j + posvec.size()));
-                    pushed = true;
-                }
-            }
-            if(pushed == false)
-                indexdata.push_back((unsigned short)(i + posvec.size()));
-        }
-        setup = true;
-    }
-
-    void render()
-    {
-        if(!setup)
-        setupindexdata();
-        cout << "rendering entity" << endl;
-
-        posvec.insert(posvec.end(),vertexdata.begin(),vertexdata.end());
-        indices.insert(indices.end(),indexdata.begin(),indexdata.end());
-    }
-
-private:
-    int arraycurrent;
-    bool setup = false;
-    int health;
-    float originalx,originaly,originalz;
-    float x,y,z;
-    vector<glm::vec4> vertexdata;
-    vector<unsigned short> indexdata;
-    bool isadded = false;
-    bool xymod= false;
-};
 
 class Camera
 {   public:
     Camera(glm::vec3 pos, float h,float v, float fov, float s = 3, float mousespeed = 0.005f)
     {
-     hangle = h;
-     position = pos;
-     vangle = v;
-     initfov = fov;
-     speed = s;
-     mousesens = mousespeed;
+        hangle = h;
+        position = pos;
+        vangle = v;
+        initfov = fov;
+        speed = s;
+        mousesens = mousespeed;
 
     }
 
@@ -139,7 +35,7 @@ class Camera
         ypos = 0;
         deltatime = glfwGetTime() - prevtime;
         glfwGetCursorPos(window,&xpos,&ypos);
-      //  cout << xpos << " " << ypos << endl;
+        //  cout << xpos << " " << ypos << endl;
         glfwSetCursorPos(window,800/2,600/2);
         hangle += mousesens * deltatime *  (400 - xpos);
         vangle += mousesens * deltatime *  (300 - ypos);
@@ -170,8 +66,8 @@ class Camera
         {
             vangle = 90.0f;
         }
-       // cout << vangle << endl;
-       // cout << hangle << endl;
+        // cout << vangle << endl;
+        // cout << hangle << endl;
         ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
         ViewMatrix= (glm::lookAt(position,position+direction,up));
         prevtime = glfwGetTime();
@@ -379,7 +275,7 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 
     return ProgramID;
 
- }
+}
 class Map
 {
 public:
@@ -388,185 +284,188 @@ public:
 
     }
 
-void loadmap(string mapfile)
-{
-    entity = new Entity(3.0f,-6.0f,5.0f,10,vec);
-    fstream file(mapfile,ios::in);
-
-    string pusher;
-    vector<string> stringvec;
-    while(getline(file,pusher))
-        stringvec.push_back(pusher);
-
-    vector<string> valstring;
-    for(int i =0;i < stringvec.size();i++)
+    void loadmap(string mapfile)
     {
-    boost::trim_if(stringvec[i], boost::is_any_of("\t "));
-    boost::algorithm::split(valstring,stringvec[i],boost::is_any_of(":"),boost::token_compress_on);
-    for(int j =0;j < valstring.size();j++)
-    {
-        if(valstring[j] == "vector")
-        {
-            vector<string> halfconv;
-           boost::algorithm::split(halfconv, valstring[j + 1],boost::is_any_of(","),boost::token_compress_on);
-           for(int k = 0;k < halfconv.size();k++)
-           {
-               bool isthere = false;
-               unsigned int vertlocation;
-               //cout << "we are at:" << k << endl;
-               for(int l =0;l < vecpusher.size(); l++)
-               {
+        entity = new Entity(3.0f,-6.0f,5.0f,10,vec);
+        fstream file(mapfile,ios::in);
 
-                   if(glm::vec4(stof(halfconv[k]),stof(halfconv[k+1]),stof(halfconv[k+2]),1.0) == vecpusher[l])
-                   {
-                   isthere = true;
-                   vertlocation = l;
-                   }
-               }
-               if(isthere == false)
-               {
-               vecpusher.push_back(glm::vec4(stof(halfconv[k]),stof(halfconv[k+1]),stof(halfconv[k+2]),1.0));
-               localindices.push_back((unsigned short)vecpusher.size() - 1);
-               }
-               else
-               localindices.push_back((unsigned short)vertlocation);
-               k += 2;
-           }
-           j++;
-        }
-        if(valstring[j] == "music")
+        string pusher;
+        vector<string> stringvec;
+        while(getline(file,pusher))
+            stringvec.push_back(pusher);
+
+        vector<string> valstring;
+        for(int i =0;i < stringvec.size();i++)
         {
-            thread t(playsong,valstring[j+1]);
-            t.detach();
-            j++;
-        }
-        if(valstring[j] == "entity")
-        {
-            vector<string> halfconv;
-            boost::algorithm::split(halfconv,valstring[j+1],boost::is_any_of(","),boost::token_compress_on);
-            Entity *pusher = Loadentity(stof(halfconv[0]),stof(halfconv[1]),stof(halfconv[2]),halfconv[3]);
-            if(pusher != NULL)
+            boost::trim_if(stringvec[i], boost::is_any_of("\t "));
+            boost::algorithm::split(valstring,stringvec[i],boost::is_any_of(":"),boost::token_compress_on);
+            for(int j =0;j < valstring.size();j++)
             {
+                if(valstring[j] == "vector")
+                {
+                    vector<string> halfconv;
+                    boost::algorithm::split(halfconv, valstring[j + 1],boost::is_any_of(","),boost::token_compress_on);
+                    for(int k = 0;k < halfconv.size();k++)
+                    {
+                        bool isthere = false;
+                        unsigned int vertlocation;
+                        //cout << "we are at:" << k << endl;
+                        for(int l =0;l < vecpusher.size(); l++)
+                        {
 
-            entities.push_back(*pusher);
-            cout << "entity pushed" << endl;
+                            if(glm::vec4(stof(halfconv[k]),stof(halfconv[k+1]),stof(halfconv[k+2]),1.0) == vecpusher[l])
+                            {
+                                isthere = true;
+                                vertlocation = l;
+                            }
+                        }
+                        if(isthere == false)
+                        {
+                            vecpusher.push_back(glm::vec4(stof(halfconv[k]),stof(halfconv[k+1]),stof(halfconv[k+2]),1.0));
+                            localindices.push_back((unsigned short)vecpusher.size() - 1);
+                        }
+                        else
+                            localindices.push_back((unsigned short)vertlocation);
+                        k += 2;
+                    }
+                    j++;
+                }
+                if(valstring[j] == "music")
+                {
+                    thread t(playsong,valstring[j+1]);
+                    t.detach();
+                    j++;
+                }
+                if(valstring[j] == "entity")
+                {
+                    vector<string> halfconv;
+                    boost::algorithm::split(halfconv,valstring[j+1],boost::is_any_of(","),boost::token_compress_on);
+                    Entity *pusher = Loadentity(stof(halfconv[0]),stof(halfconv[1]),stof(halfconv[2]),halfconv[3]);
+                    if(pusher != NULL)
+                    {
+
+                        entities.push_back(*pusher);
+                        cout << "entity pushed" << endl;
+                    }
+                    j++;
+                }
             }
-            j++;
         }
+        file.close();
+
     }
-    }
-    file.close();
-
-}
-void mapeventloop()
-{
-    //entity->setxy(sin(entity->getx()),cos(entity->gety()),sin(entity->getz()));
-    MainCamera.CameraUpdateLoop();
-    render();
-}
-
-void render()
-{
-
-    posvec.insert(posvec.end(),vecpusher.begin(),vecpusher.end());
-    indices.insert(indices.end(),localindices.begin(),localindices.end());
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned short),&indices[0], GL_STATIC_DRAW);
-    for(int i = 0;i < entities.size();i++)
+    void mapeventloop()
     {
-        entities[i].render();
+        //entity->setxy(sin(entity->getx()),cos(entity->gety()),sin(entity->getz()));
+        MainCamera.CameraUpdateLoop();
+        render();
     }
-}
+
+    void render()
+    {
+
+        posvec.insert(posvec.end(),vecpusher.begin(),vecpusher.end());
+        indices.insert(indices.end(),localindices.begin(),localindices.end());
+        for(int i = 0;i < entities.size();i++)
+        {
+            entities[i].render();
+        }
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned short),&indices[0], GL_STATIC_DRAW);
+
+
+    }
 
 private:
-Entity *Loadentity(int x,int y,int z,string filename)
-{
-
-    Entity *returnthis = NULL;
-    fstream entityf(filename,ios::in);
-    string data;
-    int hp;
-    vector<string> dataterp;
-    vector<glm::vec4> vectordata;
-    while(getline(entityf,data))
-        dataterp.push_back(data);
-    for(int i = 0;i < dataterp.size();i++)
+    Entity *Loadentity(int x,int y,int z,string filename)
     {
-    boost::trim_if(dataterp[i], boost::is_any_of("\t "));
-    vector<string> push;
 
-    boost::algorithm::split(push,dataterp[i],boost::is_any_of(":"),boost::token_compress_on);
-    for(int  j =0;j < push.size();j++)
-    {
-        if(push[j] == "hp")
+        Entity *returnthis = NULL;
+        fstream entityf(filename,ios::in);
+        string data;
+        int hp;
+        vector<string> dataterp;
+        vector<glm::vec4> vectordata;
+        while(getline(entityf,data))
+            dataterp.push_back(data);
+        for(int i = 0;i < dataterp.size();i++)
         {
-            hp = stoi(push[j + 1]);
-            j++;
-        }
-        if(push[j] == "vector")
-        {
-            vector<string> actualdata;
-            boost::split(actualdata,push[j+1],boost::is_any_of(","),boost::token_compress_on);
-            for(int i =0;i < actualdata.size();i++)
-            cout << actualdata[i] << endl;
-            vectordata.push_back(glm::vec4(stof(actualdata[0]),stof(actualdata[1]),stof(actualdata[2]),1.0));
-            j++;
-        }
-    }
-    }
-    returnthis = new Entity(x,y,z,hp,vectordata);
-    entityf.close();
-    return returnthis;
-}
+            boost::trim_if(dataterp[i], boost::is_any_of("\t "));
+            vector<string> push;
 
-vector<Entity> entities;
-vector<glm::vec4> vec;
-Entity *entity = NULL;
-vector<glm::vec4> vecpusher;
-vector<unsigned short> localindices;
+            boost::algorithm::split(push,dataterp[i],boost::is_any_of(":"),boost::token_compress_on);
+            for(int  j =0;j < push.size();j++)
+            {
+                if(push[j] == "hp")
+                {
+                    hp = stoi(push[j + 1]);
+                    j++;
+                }
+                if(push[j] == "vector")
+                {
+                    vector<string> actualdata;
+                    boost::split(actualdata,push[j+1],boost::is_any_of(","),boost::token_compress_on);
+                    for(int i =0;i < actualdata.size();i++)
+                        cout << actualdata[i] << endl;
+                    vectordata.push_back(glm::vec4(stof(actualdata[0]),stof(actualdata[1]),stof(actualdata[2]),1.0));
+                    j++;
+                }
+
+            }
+        }
+        returnthis = new Entity(x,y,z,hp,vectordata);
+        entityf.close();
+        return returnthis;
+    }
+
+    vector<Entity> entities;
+    vector<glm::vec4> vec;
+    Entity *entity = NULL;
+    vector<glm::vec4> vecpusher;
+    vector<unsigned short> localindices;
 };
 Map currentmap;
 void init3d()
 {
 
-  glGenVertexArrays(1,&varray);
-  glBindVertexArray(varray);
+    glGenVertexArrays(1,&varray);
+    glBindVertexArray(varray);
 
- //posvec.push_back(glm::vec4(-1.0,-1.0,0.5,1.0));
-  //posvec.push_back(glm::vec4(1.0,-1.0,0.5,1.0));
-   //posvec.push_back(glm::vec4(0.0,1.0,0.5,1.0));
-  ebuffer.push_back(GLuint());
- glGenBuffers(1,&ebuffer[0]);
- glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
- glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned short),&indices[0], GL_STATIC_DRAW);
- currentmap.loadmap("map");
- glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-   //posvec.push_back(glm::vec4(2.0,6.0,1.0,1.0));
- glClearColor(0.0,0.3,0.8,1.0);
- glGenBuffers(1,&buffer);
- glBindBuffer(GL_ARRAY_BUFFER,buffer);
- glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * posvec.size(),posvec.data(), GL_STATIC_DRAW);
- program = LoadShaders("vertex","fragment");
- MVPloc = glGetUniformLocation(program, "MVP");
- glEnable(GL_DEPTH_TEST);
- glDepthFunc(GL_LEQUAL);
- glEnable(GL_POINT_SIZE);
- glPointSize(20.0f);
- glfwSwapInterval(1);
- //glUniformMatrix4fv(MVPloc,1,GL_FALSE,&MVP[0][0]);
- //glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_HIDDEN);
+    //posvec.push_back(glm::vec4(-1.0,-1.0,0.5,1.0));
+    //posvec.push_back(glm::vec4(1.0,-1.0,0.5,1.0));
+    //posvec.push_back(glm::vec4(0.0,1.0,0.5,1.0));
+    ebuffer.push_back(GLuint());
+    glGenBuffers(1,&ebuffer[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned short),&indices[0], GL_STATIC_DRAW);
+    currentmap.loadmap("map");
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //posvec.push_back(glm::vec4(2.0,6.0,1.0,1.0));
+    glClearColor(0.0,0.3,0.8,1.0);
+    glGenBuffers(1,&buffer);
+    glBindBuffer(GL_ARRAY_BUFFER,buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * posvec.size(),posvec.data(), GL_STATIC_DRAW);
+    program = LoadShaders("vertex","fragment");
+    MVPloc = glGetUniformLocation(program, "MVP");
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_POINT_SIZE);
+    glPointSize(20.0f);
+    glfwSwapInterval(1);
+    //glUniformMatrix4fv(MVPloc,1,GL_FALSE,&MVP[0][0]);
+    //glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_HIDDEN);
 }
 GLFWcursor* BlankCursor()
 {
-int w=1;//16;
-int h=1;//16;
-unsigned char pixels[w * h * 4];
-memset(pixels, 0x00, sizeof(pixels));
-GLFWimage image;
-image.width = w;
-image.height = h;
-image.pixels = pixels;
-return glfwCreateCursor(&image, 0, 0);
+    int w=1;//16;
+    int h=1;//16;
+    unsigned char pixels[w * h * 4];
+    memset(pixels, 0x00, sizeof(pixels));
+    GLFWimage image;
+    image.width = w;
+    image.height = h;
+    image.pixels = pixels;
+    return glfwCreateCursor(&image, 0, 0);
 }
 int main()
 {
@@ -586,34 +485,35 @@ int main()
     while(!glfwWindowShouldClose(window) && !glfwGetKey(window,GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         posvec.erase(posvec.begin(),posvec.end());
-     indices.erase(indices.begin(),indices.end());
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(program);
-    currentmap.mapeventloop();
-    MVP = MainCamera.ProjectionMatrix * MainCamera.ViewMatrix * glm::mat4(1.0f);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * posvec.size(),posvec.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,0,(void*)0);
-    glUniformMatrix4fv(MVPloc,1,GL_FALSE,&MVP[0][0]);
-\
+        indices.erase(indices.begin(),indices.end());
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glUseProgram(program);
+        currentmap.mapeventloop();
+        MVP = MainCamera.ProjectionMatrix * MainCamera.ViewMatrix * glm::mat4(1.0f);
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * posvec.size(),posvec.data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,0,(void*)0);
+        glUniformMatrix4fv(MVPloc,1,GL_FALSE,&MVP[0][0]);
+        \
 
 
         int bufsize = 0;
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER,GL_BUFFER_SIZE, &bufsize);
-    bufsize /= sizeof(unsigned short);
-    //cant wake up
-    cout << indices.size() << endl;
-    this_thread::sleep_for(chrono::milliseconds(8));
-    glDrawElements(GL_TRIANGLES,indices.size(), GL_UNSIGNED_SHORT,(void*)0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER,GL_BUFFER_SIZE, &bufsize);
+        bufsize /= sizeof(unsigned short);
+        //cant wake up
+        //save
+        cout << indices.size() << endl;
+        //this_thread::sleep_for(chrono::milliseconds(8));
+        glDrawElements(GL_TRIANGLES,indices.size(), GL_UNSIGNED_SHORT,(void*)0);
 
 
 
-    glFlush();
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+        glFlush();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
     glfwDestroyWindow(window);
     glfwTerminate();

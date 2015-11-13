@@ -31,56 +31,56 @@ void playsong(string bob)
     PaStream * stream = 0;
     if(!bob.empty())
     {
-     fclose(stdout);
-     fclose(stderr);
-    Pa_Initialize();
+        fclose(stdout);
+        fclose(stderr);
+        Pa_Initialize();
 
-    freopen("/dev/tty", "w", stdout);
-    freopen("/dev/tty", "w", stderr);
+        freopen("/dev/tty", "w", stdout);
+        freopen("/dev/tty", "w", stderr);
 
-    Pa_OpenDefaultStream(&stream, 0, 2, paInt16 | paNonInterleaved, SAMPLERATE, paFramesPerBufferUnspecified, NULL, NULL);
-    Pa_StartStream(stream);
-    cout << bob.c_str() << endl;
-    file = fopen(bob.c_str(), "rb");
-    if(file != NULL)
-    {
-        if(openmpt_could_open_propability(openmpt_stream_get_file_callbacks(),file,1,NULL,NULL) >= 0.4)
+        Pa_OpenDefaultStream(&stream, 0, 2, paInt16 | paNonInterleaved, SAMPLERATE, paFramesPerBufferUnspecified, NULL, NULL);
+        Pa_StartStream(stream);
+        cout << bob.c_str() << endl;
+        file = fopen(bob.c_str(), "rb");
+        if(file != NULL)
         {
-    mod = openmpt_module_create(openmpt_stream_get_file_callbacks(), file, NULL, NULL, NULL);
-        openmpt_module_set_render_param(mod, OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH, interpol);
-        openmpt_module_set_render_param(mod, OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT, ss);
-        openmpt_module_set_repeat_count(mod,repeattimes);
-        int numtimes = 0;
-        fclose(file);
-        while (1) {
+            if(openmpt_could_open_propability(openmpt_stream_get_file_callbacks(),file,1,NULL,NULL) >= 0.4)
+            {
+                mod = openmpt_module_create(openmpt_stream_get_file_callbacks(), file, NULL, NULL, NULL);
+                openmpt_module_set_render_param(mod, OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH, interpol);
+                openmpt_module_set_render_param(mod, OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT, ss);
+                openmpt_module_set_repeat_count(mod,repeattimes);
+                int numtimes = 0;
+                fclose(file);
+                while (1) {
 
 
 
 
-            count = openmpt_module_read_stereo(mod, SAMPLERATE, BUFFERSIZE, left, right);
-            if (count == 0) {
-                //goto recursive;
-                if(openmpt_module_get_repeat_count(mod) == 0)
-                 {
-                    break;
+                    count = openmpt_module_read_stereo(mod, SAMPLERATE, BUFFERSIZE, left, right);
+                    if (count == 0) {
+                        //goto recursive;
+                        if(openmpt_module_get_repeat_count(mod) == 0)
+                        {
+                            break;
+                        }
+                        else
+                            count = openmpt_module_read_stereo(mod, SAMPLERATE, BUFFERSIZE, left, right);
+                        //break;
+                    }
+                    Pa_WriteStream(stream, buffers, (unsigned long)count);
                 }
-                else
-                count = openmpt_module_read_stereo(mod, SAMPLERATE, BUFFERSIZE, left, right);
-                //break;
-            }
-            Pa_WriteStream(stream, buffers, (unsigned long)count);
-        }
 
-        Pa_StopStream(stream);
-        Pa_CloseStream(stream);
-        Pa_Terminate();
-        openmpt_module_destroy(mod);
-    }
-    else
-    {
-       cout << "Not a valid module." << endl;
-    }
-    }
+                Pa_StopStream(stream);
+                Pa_CloseStream(stream);
+                Pa_Terminate();
+                openmpt_module_destroy(mod);
+            }
+            else
+            {
+                cout << "Not a valid module." << endl;
+            }
+        }
     }
 
 }

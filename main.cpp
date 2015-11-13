@@ -361,7 +361,7 @@ public:
         MainCamera.CameraUpdateLoop();
         render();
     }
-<<<<<<< HEAD
+
 
     void render()
     {
@@ -374,23 +374,7 @@ public:
         }
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned short),&indices[0], GL_STATIC_DRAW);
-
-
-=======
-
-    void render()
-    {
-
-        posvec.insert(posvec.end(),vecpusher.begin(),vecpusher.end());
-        indices.insert(indices.end(),localindices.begin(),localindices.end());
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned short),&indices[0], GL_STATIC_DRAW);
-        for(int i = 0;i < entities.size();i++)
-        {
-            entities[i].render();
-        }
->>>>>>> ba0ed0c925063168f3657d679a85d63d4eb95df6
-    }
+     }
 
 private:
     Entity *Loadentity(int x,int y,int z,string filename)
@@ -399,11 +383,9 @@ private:
         Entity *returnthis = NULL;
         fstream entityf(filename,ios::in);
         string data;
-<<<<<<< HEAD
-        int hp;
-=======
+
         int hp = 10;
->>>>>>> ba0ed0c925063168f3657d679a85d63d4eb95df6
+
         vector<string> dataterp;
         vector<glm::vec4> vectordata;
         while(getline(entityf,data))
@@ -430,10 +412,7 @@ private:
                     vectordata.push_back(glm::vec4(stof(actualdata[0]),stof(actualdata[1]),stof(actualdata[2]),1.0));
                     j++;
                 }
-<<<<<<< HEAD
 
-=======
->>>>>>> ba0ed0c925063168f3657d679a85d63d4eb95df6
             }
         }
         returnthis = new Entity(x,y,z,hp,vectordata);

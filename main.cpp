@@ -36,9 +36,6 @@ public:
         originaly = y;
         originalz = z;
         setxy(x,y,z);
-        ebuffer.push_back(GLuint());
-        arraycurrent = ebuffer.size() - 1;
-        glGenBuffers(1,&ebuffer[ebuffer.size() - 1]);
 
     }
 
@@ -64,6 +61,7 @@ public:
             vertexdata[i].y += yp;
             vertexdata[i].z += zp;
         }
+        xymod = true;
     }
     void sethp(int hp)
     {
@@ -80,6 +78,7 @@ public:
     }
     void setupindexdata()
     {
+        indexdata.erase(indexdata.begin(),indexdata.end());
         bool pushed = false;
         for(int i = 0;i < vertexdata.size();i++)
         {
@@ -88,6 +87,7 @@ public:
             {
                 if(vertexdata[i] == vertexdata[j])
                 {
+
                     indexdata.push_back((unsigned short)(j + posvec.size()));
                     pushed = true;
                 }
@@ -102,14 +102,15 @@ public:
     {
         if(!setup)
         setupindexdata();
+        cout << "rendering entity" << endl;
+
         posvec.insert(posvec.end(),vertexdata.begin(),vertexdata.end());
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[arraycurrent]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,indexdata.size() * sizeof(unsigned short),&indexdata[0],GL_STATIC_DRAW);
+        indices.insert(indices.end(),indexdata.begin(),indexdata.end());
     }
 
 private:
     int arraycurrent;
-    bool setup;
+    bool setup = false;
     int health;
     float originalx,originaly,originalz;
     float x,y,z;
@@ -138,7 +139,7 @@ class Camera
         ypos = 0;
         deltatime = glfwGetTime() - prevtime;
         glfwGetCursorPos(window,&xpos,&ypos);
-        cout << xpos << " " << ypos << endl;
+      //  cout << xpos << " " << ypos << endl;
         glfwSetCursorPos(window,800/2,600/2);
         hangle += mousesens * deltatime *  (400 - xpos);
         vangle += mousesens * deltatime *  (300 - ypos);
@@ -169,8 +170,8 @@ class Camera
         {
             vangle = 90.0f;
         }
-        cout << vangle << endl;
-        cout << hangle << endl;
+       // cout << vangle << endl;
+       // cout << hangle << endl;
         ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
         ViewMatrix= (glm::lookAt(position,position+direction,up));
         prevtime = glfwGetTime();
@@ -384,9 +385,7 @@ class Map
 public:
     Map()
     {
-        vec.push_back(glm::vec4(1.3,1.2,1.1,1.0));
-        vec.push_back(glm::vec4(1.4,0.5 ,1.2,1.0));
-        vec.push_back(glm::vec4(1.5,1.4,1.3,1.0));
+
     }
 
 void loadmap(string mapfile)
@@ -441,6 +440,19 @@ void loadmap(string mapfile)
             t.detach();
             j++;
         }
+        if(valstring[j] == "entity")
+        {
+            vector<string> halfconv;
+            boost::algorithm::split(halfconv,valstring[j+1],boost::is_any_of(","),boost::token_compress_on);
+            Entity *pusher = Loadentity(stof(halfconv[0]),stof(halfconv[1]),stof(halfconv[2]),halfconv[3]);
+            if(pusher != NULL)
+            {
+
+            entities.push_back(*pusher);
+            cout << "entity pushed" << endl;
+            }
+            j++;
+        }
     }
     }
     file.close();
@@ -450,7 +462,7 @@ void mapeventloop()
 {
     //entity->setxy(sin(entity->getx()),cos(entity->gety()),sin(entity->getz()));
     MainCamera.CameraUpdateLoop();
-    //if()
+    render();
 }
 
 void render()
@@ -460,17 +472,51 @@ void render()
     indices.insert(indices.end(),localindices.begin(),localindices.end());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned short),&indices[0], GL_STATIC_DRAW);
-    entity->render();
+    for(int i = 0;i < entities.size();i++)
+    {
+        entities[i].render();
+    }
 }
 
 private:
-Entity Loadentity(string filename)
+Entity *Loadentity(int x,int y,int z,string filename)
 {
 
     Entity *returnthis = NULL;
     fstream entityf(filename,ios::in);
+    string data;
+    int hp;
+    vector<string> dataterp;
+    vector<glm::vec4> vectordata;
+    while(getline(entityf,data))
+        dataterp.push_back(data);
+    for(int i = 0;i < dataterp.size();i++)
+    {
+    boost::trim_if(dataterp[i], boost::is_any_of("\t "));
+    vector<string> push;
+
+    boost::algorithm::split(push,dataterp[i],boost::is_any_of(":"),boost::token_compress_on);
+    for(int  j =0;j < push.size();j++)
+    {
+        if(push[j] == "hp")
+        {
+            hp = stoi(push[j + 1]);
+            j++;
+        }
+        if(push[j] == "vector")
+        {
+            vector<string> actualdata;
+            boost::split(actualdata,push[j+1],boost::is_any_of(","),boost::token_compress_on);
+            for(int i =0;i < actualdata.size();i++)
+            cout << actualdata[i] << endl;
+            vectordata.push_back(glm::vec4(stof(actualdata[0]),stof(actualdata[1]),stof(actualdata[2]),1.0));
+            j++;
+        }
+    }
+    }
+    returnthis = new Entity(x,y,z,hp,vectordata);
     entityf.close();
-    return *returnthis;
+    return returnthis;
 }
 
 vector<Entity> entities;
@@ -541,11 +587,9 @@ int main()
     {
         posvec.erase(posvec.begin(),posvec.end());
      indices.erase(indices.begin(),indices.end());
-     currentmap.render();
-     currentmap.mapeventloop();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program);
-
+    currentmap.mapeventloop();
     MVP = MainCamera.ProjectionMatrix * MainCamera.ViewMatrix * glm::mat4(1.0f);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * posvec.size(),posvec.data(), GL_STATIC_DRAW);
@@ -554,17 +598,17 @@ int main()
     glUniformMatrix4fv(MVPloc,1,GL_FALSE,&MVP[0][0]);
 \
 
-    for(int i =0;i < ebuffer.size();i++)
-    {
+
         int bufsize = 0;
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[i]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER,GL_BUFFER_SIZE, &bufsize);
     bufsize /= sizeof(unsigned short);
     //cant wake up
+    cout << indices.size() << endl;
     this_thread::sleep_for(chrono::milliseconds(8));
     glDrawElements(GL_TRIANGLES,indices.size(), GL_UNSIGNED_SHORT,(void*)0);
-    }
+
 
 
     glFlush();

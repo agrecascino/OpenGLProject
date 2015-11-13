@@ -596,7 +596,7 @@ int main()
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,0,(void*)0);
         glUniformMatrix4fv(MVPloc,1,GL_FALSE,&MVP[0][0]);
-        \
+
 
 
         int bufsize = 0;

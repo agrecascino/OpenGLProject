@@ -15,115 +15,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 using namespace std;
-<<<<<<< HEAD
-=======
-GLFWwindow *window;
-GLuint buffer;
-GLuint varray;
-vector<glm::vec4> posvec;
-GLuint program;
-GLuint MVPloc;
-glm::mat4 MVP;
-vector<unsigned short> indices;
-vector<GLuint> ebuffer;
-class Entity
-{
-public:
-    Entity(float xp,float yp,float zp, int hp,vector<glm::vec4> data)
-    {
-        health = hp;
-        x=xp;
-        y=yp;
-        z = zp;
-        vertexdata = data;
-        originalx = x;
-        originaly = y;
-        originalz = z;
-        setxy(x,y,z);
 
-    }
-
-    void setxy(float xp, float yp, float zp)
-    {
-
-        x = xp;
-        y = yp;
-        z = zp;
-        if(xymod){
-            for(int i =0;i < vertexdata.size();i++)
-            {
-
-                vertexdata[i].x -= originalx;
-                vertexdata[i].y -= originaly;
-                vertexdata[i].z -= originalz;
-            }
-        }
-        for(int i =0;i < vertexdata.size();i++)
-        {
-
-            vertexdata[i].x += xp;
-            vertexdata[i].y += yp;
-            vertexdata[i].z += zp;
-        }
-        xymod = true;
-    }
-    void sethp(int hp)
-    {
-        hp = health;
-    }
-    int gethp(){return health;}
-    int getx(){return x;}
-    int gety(){return y;}
-    int getz(){return z;}
-    void setdata(vector<glm::vec4> data)
-    {
-        vertexdata = data;
-        setup =false;
-    }
-    void setupindexdata()
-    {
-        indexdata.erase(indexdata.begin(),indexdata.end());
-        bool pushed = false;
-        for(int i = 0;i < vertexdata.size();i++)
-        {
-            pushed = false;
-            for(int j =0;j < vertexdata.size();j++)
-            {
-                if(vertexdata[i] == vertexdata[j])
-                {
-
-                    indexdata.push_back((unsigned short)(j + posvec.size()));
-                    pushed = true;
-                }
-            }
-            if(pushed == false)
-                indexdata.push_back((unsigned short)(i + posvec.size()));
-        }
-        setup = true;
-    }
-
-    void render()
-    {
-        if(!setup)
-            setupindexdata();
-        cout << "rendering entity" << endl;
-
-        posvec.insert(posvec.end(),vertexdata.begin(),vertexdata.end());
-        indices.insert(indices.end(),indexdata.begin(),indexdata.end());
-    }
-
-private:
-    int arraycurrent;
-    bool setup = false;
-    int health;
-    float originalx,originaly,originalz;
-    float x,y,z;
-    vector<glm::vec4> vertexdata;
-    vector<unsigned short> indexdata;
-    bool isadded = false;
-    bool xymod= false;
-};
->>>>>>> ba0ed0c925063168f3657d679a85d63d4eb95df6
 
 class Camera
 {   public:
@@ -626,11 +518,7 @@ int main()
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,0,(void*)0);
         glUniformMatrix4fv(MVPloc,1,GL_FALSE,&MVP[0][0]);
-<<<<<<< HEAD
-        \
-=======
 
->>>>>>> ba0ed0c925063168f3657d679a85d63d4eb95df6
 
 
         int bufsize = 0;
@@ -638,15 +526,7 @@ int main()
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebuffer[0]);
         glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER,GL_BUFFER_SIZE, &bufsize);
         bufsize /= sizeof(unsigned short);
-        //cant wake up
-<<<<<<< HEAD
-        //save
-        cout << indices.size() << endl;
-        //this_thread::sleep_for(chrono::milliseconds(8));
-=======
-        cout << indices.size() << endl;
-        this_thread::sleep_for(chrono::milliseconds(8));
->>>>>>> ba0ed0c925063168f3657d679a85d63d4eb95df6
+
         glDrawElements(GL_TRIANGLES,indices.size(), GL_UNSIGNED_SHORT,(void*)0);
 
 

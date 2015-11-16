@@ -34,6 +34,7 @@ class Camera
     {
         xpos = 0;
         ypos = 0;
+
         deltatime = glfwGetTime() - prevtime;
         glfwGetCursorPos(window,&xpos,&ypos);
         //  cout << xpos << " " << ypos << endl;
@@ -75,7 +76,7 @@ class Camera
     }
     glm::mat4 ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
     glm::mat4 ViewMatrix= (glm::lookAt(position,position+direction,up));
-
+    glm::vec3 position;
 
 private:
     glm::vec3 direction;
@@ -83,7 +84,6 @@ private:
     glm::vec3 up;
     float prevtime;
     double xpos,ypos;
-    glm::vec3 position;
     float hangle;
     float vangle;
     float initfov;
@@ -287,10 +287,12 @@ public:
 
     void loadmap(string mapfile)
     {
-        entity = new Entity(3.0f,-6.0f,5.0f,10,vec);
+
         fstream file(mapfile,ios::in);
 
         string pusher;
+       // bool v1 = false,v2 = false,v3 = false;
+        //btVector3 triangle[3];
         vector<string> stringvec;
         while(getline(file,pusher))
             stringvec.push_back(pusher);
@@ -310,7 +312,10 @@ public:
                     {
                         bool isthere = false;
                         unsigned int vertlocation;
+
+
                         //cout << "we are at:" << k << endl;
+                        vec.push_back(glm::vec3(stof(halfconv[k]),stof(halfconv[k+1]),stof(halfconv[k+2])));
                         for(int l =0;l < vecpusher.size(); l++)
                         {
 
@@ -353,6 +358,7 @@ public:
             }
         }
         file.close();
+        godhelpme();
 
     }
     void mapeventloop()
@@ -362,6 +368,15 @@ public:
         render();
     }
 
+    void godhelpme()
+    {
+        cout << sizeof(helpme) << endl;
+        for(int i = 0;i < vec.size();i += 3)
+        {
+            helpme.addTriangle(btVector3(vec[i].x,vec[i].y,vec[i].z),btVector3(vec[i+1].x,vec[i+1].y,vec[i+1].z),btVector3(vec[i+2].x,vec[i+2].y,vec[i+2].z));
+        }
+      shape = new btBvhTriangleMeshShape(&helpme,true,true);
+    }
 
     void render()
     {
@@ -412,17 +427,17 @@ private:
                     vectordata.push_back(glm::vec4(stof(actualdata[0]),stof(actualdata[1]),stof(actualdata[2]),1.0));
                     j++;
                 }
-
+ 
             }
         }
         returnthis = new Entity(x,y,z,hp,vectordata);
         entityf.close();
         return returnthis;
     }
-
+    btTriangleMesh helpme;
     vector<Entity> entities;
-    vector<glm::vec4> vec;
-    Entity *entity = NULL;
+    vector<glm::vec3> vec;
+    btCollisionShape* shape;
     vector<glm::vec4> vecpusher;
     vector<unsigned short> localindices;
 };
@@ -432,7 +447,8 @@ void init3d()
 
     glGenVertexArrays(1,&varray);
     glBindVertexArray(varray);
-
+    btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
+    dynamicsWorld->setGravity(btVector3(0,-10,0));
     //posvec.push_back(glm::vec4(-1.0,-1.0,0.5,1.0));
     //posvec.push_back(glm::vec4(1.0,-1.0,0.5,1.0));
     //posvec.push_back(glm::vec4(0.0,1.0,0.5,1.0));
@@ -516,6 +532,11 @@ int main()
     }
     glfwDestroyWindow(window);
     glfwTerminate();
+    delete dynamicsWorld;
+        delete solver;
+        delete dispatcher;
+        delete collisionConfiguration;
+        delete broadphase;
     return 0;
 }
 

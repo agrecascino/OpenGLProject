@@ -1,0 +1,13 @@
+vector:-5,-2,-5:
+vector:-5,-2,5:
+vector:5,-2,-5:
+vector:-5,-2,5:
+vector:5,-2,-5:
+vector:5,-2,5:
+    //music:moodbrez.mod:
+
+   entity:2,3,1,ent2:
+ entity:4,1,-1,ent2:
+ entity:5,-3,1,ent2:
+ entity:4,3,1,ent2:
+

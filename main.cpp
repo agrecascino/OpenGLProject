@@ -29,7 +29,7 @@ class Camera
         initfov = fov;
         speed = s;
         mousesens = mousespeed;
-         btCollisionShape* boxCollisionShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
+         btCollisionShape* boxCollisionShape = new btBoxShape(btVector3(1.0f, 2.0f, 1.0f));
          fallMotionState =
                          new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(pos.x,pos.y, pos.z)));
          btScalar mass = 1;
@@ -44,7 +44,7 @@ class Camera
 
                         // collidecaller ringring(*rigidbody);
                          //dynamicsWorld->contactTest(rigidbody,ringring);
-                         dynamicsWorld->performDiscreteCollisionDetection();
+                         //dynamicsWorld->performDiscreteCollisionDetection();
                          dynamicsWorld->setInternalTickCallback((btInternalTickCallback)test);
     }
 
@@ -54,6 +54,11 @@ class Camera
         if(numManifolds >= 1)
         {
             cout << "collision" << endl;
+            glClearColor(0.0,0.7,0.8,1.0);
+        }
+        else if(numManifolds < 1)
+        {
+           glClearColor(0.0,0.3,0.8,1.0);
         }
     }
 
@@ -95,7 +100,7 @@ class Camera
             //rigidbody->translate(-(btVector3(right.x,right.y,right.z) * deltatime * speed));
         }
         btTransform output;
-        fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x,position.y, position.z)));
+        fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x,position.y + 1, position.z)));
         rigidbody->setMotionState(fallMotionState);
         rigidbody->getMotionState()->getWorldTransform(output);
         cout << output.getOrigin().getZ() << endl;

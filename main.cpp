@@ -8,6 +8,7 @@
 #include <chrono>
 #include "itsnotok.h"
 #include <fstream>
+
 //#include <freetype2/ft2build.h>
 //#include <freetype2/freetype.h>
 #include <cstdio>
@@ -17,50 +18,23 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 using namespace std;
+
 //FT_Library ft;
 //FT_Face face;
 class Camera
 {   public:
     Camera(glm::vec3 pos, float h,float v, float fov, float s = 3, float mousespeed = 0.005f)
     {
+
         hangle = h;
         position = pos;
         vangle = v;
         initfov = fov;
         speed = s;
         mousesens = mousespeed;
-         btCollisionShape* boxCollisionShape = new btBoxShape(btVector3(1.0f, 2.0f, 1.0f));
-         fallMotionState =
-                         new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(pos.x,pos.y, pos.z)));
-         btScalar mass = 1;
-                 btVector3 fallInertia(0, 0, 0);
-                 boxCollisionShape->calculateLocalInertia(mass, fallInertia);
-                 btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(mass, fallMotionState, boxCollisionShape, fallInertia);
-                         rigidbody = new btRigidBody(fallRigidBodyCI);
-                         dynamicsWorld->addRigidBody(rigidbody);
-                         char ptr = {'c'};
-                         //rigidbody->
-                         rigidbody->setUserPointer(&ptr);
 
-                        // collidecaller ringring(*rigidbody);
-                         //dynamicsWorld->contactTest(rigidbody,ringring);
-                         //dynamicsWorld->performDiscreteCollisionDetection();
-                         dynamicsWorld->setInternalTickCallback((btInternalTickCallback)test);
     }
 
-    static void test (btDynamicsWorld *world, btScalar timeStep)
-    {
-        int numManifolds = world->getDispatcher()->getNumManifolds();
-        if(numManifolds >= 1)
-        {
-            cout << "collision" << endl;
-            glClearColor(0.0,0.7,0.8,1.0);
-        }
-        else if(numManifolds < 1)
-        {
-           glClearColor(0.0,0.3,0.8,1.0);
-        }
-    }
 
 
     void CameraUpdateLoop()
@@ -80,13 +54,13 @@ class Camera
         if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS)
         {
             position += direction * deltatime * speed;
-           // rigidbody->translate(btVector3(direction.x,direction.y,direction.z) * deltatime * speed);
+            //rigidbody->translate(btVector3(direction.x,direction.y,direction.z) * deltatime * speed);
 
         }
         if(glfwGetKey(window,GLFW_KEY_S) == GLFW_PRESS)
         {
             position -= direction * deltatime * speed;
-           // rigidbody->translate(-(btVector3(direction.x,direction.y,direction.z) * deltatime * speed));
+            //rigidbody->translate(-(btVector3(direction.x,direction.y,direction.z) * deltatime * speed));
         }
         if(glfwGetKey(window,GLFW_KEY_D) == GLFW_PRESS)
         {
@@ -99,11 +73,7 @@ class Camera
             position -= right * deltatime * speed;
             //rigidbody->translate(-(btVector3(right.x,right.y,right.z) * deltatime * speed));
         }
-        btTransform output;
-        fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x,position.y + 1, position.z)));
-        rigidbody->setMotionState(fallMotionState);
-        rigidbody->getMotionState()->getWorldTransform(output);
-        cout << output.getOrigin().getZ() << endl;
+
 
         if(vangle < -90.0f)
         {
@@ -118,14 +88,13 @@ class Camera
         ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
         ViewMatrix= (glm::lookAt(position,position+direction,up));
         prevtime = glfwGetTime();
+
     }
     glm::mat4 ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
     glm::mat4 ViewMatrix= (glm::lookAt(position,position+direction,up));
     glm::vec3 position;
     float deltatime;
 private:
-     btDefaultMotionState* fallMotionState;
-    btRigidBody *rigidbody;
     glm::vec3 direction;
     glm::vec3 right;
     glm::vec3 up;
@@ -411,23 +380,37 @@ public:
     {
         //entity->setxy(sin(entity->getx()),cos(entity->gety()),sin(entity->getz()));
         MainCamera.CameraUpdateLoop();
-        dynamicsWorld->stepSimulation(1 / MainCamera.deltatime,10);
+
         render();
     }
 
     void godhelpme()
     {
-        cout << sizeof(helpme) << endl;
+       // vector<Point> points_yo;
+        //IndexedTriangle k;
+
+        //vector<IndexedTriangle> itri;
+        //k.mVRef
+
         for(int i = 0;i < vec.size();i += 3)
         {
-            helpme.addTriangle(btVector3(vec[i].x,vec[i].y,vec[i].z),btVector3(vec[i+1].x,vec[i+1].y,vec[i+1].z),btVector3(vec[i+2].x,vec[i+2].y,vec[i+2].z));
+            //helpme.addTriangle(btVector3(vec[i].x,vec[i].y,vec[i].z),btVector3(vec[i+1].x,vec[i+1].y,vec[i+1].z),btVector3(vec[i+2].x,vec[i+2].y,vec[i+2].z));
+           /* points_yo.push_back(Point(vec[i].x,vec[i].y,vec[i].z));
+            points_yo.push_back(Point(vec[i+1].x,vec[i+1].y,vec[i+1].z));
+            points_yo.push_back(Point(vec[i+2].x,vec[i+2].y,vec[i+2].z));
+            itri.push_back(IndexedTriangle());
+
+            itri[i].mVRef[0] = i;
+            itri[i].mVRef[1] = i+1;
+            itri[i].mVRef[2] = i+2;*/
         }
-      shape = new btBvhTriangleMeshShape(&helpme,true,true);
-      btDefaultMotionState* groundMotionState =
-                      new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
-      btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI  = btRigidBody::btRigidBodyConstructionInfo(0, groundMotionState, shape, btVector3(0, 0, 0));
-              btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
-      dynamicsWorld->addRigidBody(groundRigidBody);
+
+
+        //OPCC.mIMesh->SetPointers(localindices.data(),vecpusher.data());
+
+
+
+
 
       //make this do something
     }
@@ -489,10 +472,10 @@ private:
         return returnthis;
     }
 
-    btTriangleMesh helpme;
+    //Model MapModel;
     vector<Entity> entities;
     vector<glm::vec3> vec;
-    btCollisionShape* shape;
+
     vector<glm::vec4> vecpusher;
     vector<unsigned short> localindices;
 };
@@ -503,11 +486,11 @@ void init3d()
     //FT_New_Face(ft,"FreeSans.ttf",0,&face);
     //FT_Set_Pixel_Sizes(face,0,48);
     //FT_Load_Char(face, 'A',FT_LOAD_RENDER);
-
+    //Opcode::InitOpcode();
     glGenVertexArrays(1,&varray);
     glBindVertexArray(varray);
-    btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
-    dynamicsWorld->setGravity(btVector3(0,-10,0));
+
+
     //posvec.push_back(glm::vec4(-1.0,-1.0,0.5,1.0));
     //posvec.push_back(glm::vec4(1.0,-1.0,0.5,1.0));
     //posvec.push_back(glm::vec4(0.0,1.0,0.5,1.0));
@@ -591,11 +574,7 @@ int main()
     }
     glfwDestroyWindow(window);
     glfwTerminate();
-    delete dynamicsWorld;
-        delete solver;
-        delete dispatcher;
-        delete collisionConfiguration;
-        delete broadphase;
+
     return 0;
 }
 

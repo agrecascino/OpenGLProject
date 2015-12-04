@@ -8,7 +8,7 @@
 #include <chrono>
 #include "itsnotok.h"
 #include <fstream>
-
+#include <Newton.h>
 //#include <freetype2/ft2build.h>
 //#include <freetype2/freetype.h>
 #include <cstdio>
@@ -32,7 +32,6 @@ class Camera
         initfov = fov;
         speed = s;
         mousesens = mousespeed;
-
     }
 
 
@@ -392,8 +391,14 @@ public:
         //vector<IndexedTriangle> itri;
         //k.mVRef
 
+
+
+        MapCollision = NewtonCreateTreeCollision(CollisionWorld,NULL);
+        //OPCC.mIMesh->SetPointers(localindices.data(),vecpusher.data());
         for(int i = 0;i < vec.size();i += 3)
         {
+            float Mapping[9] = {vec[i].x,vec[i].y,vec[i].z,vec[i+2].x,vec[i+2].y,vec[i+2].z,vec[i+3].x,vec[i+3].y,vec[i+3].z};
+            NewtonTreeCollisionAddFace(MapCollision,3,(float*)Mapping,3*sizeof(float),1);
             //helpme.addTriangle(btVector3(vec[i].x,vec[i].y,vec[i].z),btVector3(vec[i+1].x,vec[i+1].y,vec[i+1].z),btVector3(vec[i+2].x,vec[i+2].y,vec[i+2].z));
            /* points_yo.push_back(Point(vec[i].x,vec[i].y,vec[i].z));
             points_yo.push_back(Point(vec[i+1].x,vec[i+1].y,vec[i+1].z));
@@ -403,11 +408,10 @@ public:
             itri[i].mVRef[0] = i;
             itri[i].mVRef[1] = i+1;
             itri[i].mVRef[2] = i+2;*/
+
+
         }
-
-
-        //OPCC.mIMesh->SetPointers(localindices.data(),vecpusher.data());
-
+        NewtonTreeCollisionEndBuild(MapCollision,0);
 
 
 
@@ -476,12 +480,16 @@ private:
     vector<Entity> entities;
     vector<glm::vec3> vec;
 
+    NewtonCollision *MapCollision;
     vector<glm::vec4> vecpusher;
     vector<unsigned short> localindices;
 };
 Map currentmap;
 void init3d()
 {
+
+    CollisionWorld = NewtonCreate();
+    NewtonSetSolverModel(CollisionWorld,1);
     //FT_Init_FreeType(&ft);
     //FT_New_Face(ft,"FreeSans.ttf",0,&face);
     //FT_Set_Pixel_Sizes(face,0,48);

@@ -4,10 +4,10 @@
 #include <GLFW/glfw3.h>
 #include <GL/glew.h>
 #include <vector>
-
+#include <Newton.h>
 using namespace std;
 GLFWwindow *window;
-
+NewtonWorld *CollisionWorld;
 GLuint buffer;
 GLuint varray;
 vector<glm::vec4> posvec;

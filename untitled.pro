@@ -51,3 +51,6 @@ else:unix: PRE_TARGETDEPS += $$PWD/../Downloads/libopenmpt-0.2.5705/bin/libopenm
 
 
 
+
+
+unix|win32: LIBS += -lNewton

@@ -32,6 +32,15 @@ class Camera
         initfov = fov;
         speed = s;
         mousesens = mousespeed;
+        glm::mat4 initmatrix = glm::mat4(1.0f);
+        initmatrix[3][0] = pos.x;
+        initmatrix[3][1] = pos.y;
+        initmatrix[3][2] = pos.z;
+        CameraAABB = NewtonCreateBox(CollisionWorld,1,2,1,0,NULL);
+        CameraBody = NewtonCreateDynamicBody(CollisionWorld,CameraAABB,&initmatrix[0][0]);
+        //http://newtondynamics.com/wiki/index.php5?title=Super_simple_quick-start_with_48_lines_of_C_example
+        //http://irrlicht3d.org/wiki/index.php?n=Main.BasicCollisionDetection
+
     }
 
 
@@ -94,6 +103,8 @@ class Camera
     glm::vec3 position;
     float deltatime;
 private:
+    NewtonCollision *CameraAABB;
+    NewtonBody *CameraBody;
     glm::vec3 direction;
     glm::vec3 right;
     glm::vec3 up;
@@ -395,6 +406,7 @@ public:
 
         MapCollision = NewtonCreateTreeCollision(CollisionWorld,NULL);
         //OPCC.mIMesh->SetPointers(localindices.data(),vecpusher.data());
+        NewtonTreeCollisionBeginBuild(MapCollision);
         for(int i = 0;i < vec.size();i += 3)
         {
             float Mapping[9] = {vec[i].x,vec[i].y,vec[i].z,vec[i+2].x,vec[i+2].y,vec[i+2].z,vec[i+3].x,vec[i+3].y,vec[i+3].z};
@@ -412,9 +424,9 @@ public:
 
         }
         NewtonTreeCollisionEndBuild(MapCollision,0);
+        glm::mat4 ident = glm::mat4(1.0f);
 
-
-
+        MapBody = NewtonCreateDynamicBody(CollisionWorld,MapCollision,&ident[0][0]);
 
       //make this do something
     }
@@ -479,7 +491,7 @@ private:
     //Model MapModel;
     vector<Entity> entities;
     vector<glm::vec3> vec;
-
+    NewtonBody *MapBody;
     NewtonCollision *MapCollision;
     vector<glm::vec4> vecpusher;
     vector<unsigned short> localindices;

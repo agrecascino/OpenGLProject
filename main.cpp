@@ -32,17 +32,20 @@ class Camera
         initfov = fov;
         speed = s;
         mousesens = mousespeed;
+
+    }
+    void CameraInitCollision()
+    {
         glm::mat4 initmatrix = glm::mat4(1.0f);
-        initmatrix[3][0] = pos.x;
-        initmatrix[3][1] = pos.y;
-        initmatrix[3][2] = pos.z;
+        initmatrix[3][0] = position.x;
+        initmatrix[3][1] = position.y;
+        initmatrix[3][2] = position.z;
+        //const	float initialTM[16]	=	{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0, 0, 0, 0.0f, 1.0f };
         CameraAABB = NewtonCreateBox(CollisionWorld,1,2,1,0,NULL);
         CameraBody = NewtonCreateDynamicBody(CollisionWorld,CameraAABB,&initmatrix[0][0]);
         //http://newtondynamics.com/wiki/index.php5?title=Super_simple_quick-start_with_48_lines_of_C_example
         //http://irrlicht3d.org/wiki/index.php?n=Main.BasicCollisionDetection
-
     }
-
 
 
     void CameraUpdateLoop()
@@ -91,6 +94,11 @@ class Camera
         {
             vangle = 90.0f;
         }
+        glm::mat4 initmatrix = glm::mat4(1.0f);
+        initmatrix[3][0] = position.x;
+        initmatrix[3][1] = position.y;
+        initmatrix[3][2] = position.z;
+        NewtonBodySetMatrix(CameraBody,&initmatrix[0][0]);
         // cout << vangle << endl;
         // cout << hangle << endl;
         ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
@@ -427,8 +435,9 @@ public:
         glm::mat4 ident = glm::mat4(1.0f);
 
         MapBody = NewtonCreateDynamicBody(CollisionWorld,MapCollision,&ident[0][0]);
+        MainCamera.CameraInitCollision();
 
-      //make this do something
+        //make this do something
     }
 
     void render()

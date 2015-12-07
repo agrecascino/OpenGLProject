@@ -14,6 +14,7 @@
 #include <cstdio>
 #include "moduleplayer.h"
 //#include <regex>
+#include <dMatrix.h>
 #include "entity.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
@@ -23,6 +24,8 @@ using namespace std;
 //FT_Face face;
 class Camera
 {   public:
+    dMatrix matrix;
+
     Camera(glm::vec3 pos, float h,float v, float fov, float s = 3, float mousespeed = 0.005f)
     {
 
@@ -42,7 +45,7 @@ class Camera
         initmatrix[3][2] = position.z;
         //const	float initialTM[16]	=	{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0, 0, 0, 0.0f, 1.0f };
         CameraAABB = NewtonCreateBox(CollisionWorld,1,2,1,0,NULL);
-        CameraBody = NewtonCreateDynamicBody(CollisionWorld,CameraAABB,&initmatrix[0][0]);
+
         //http://newtondynamics.com/wiki/index.php5?title=Super_simple_quick-start_with_48_lines_of_C_example
         //http://irrlicht3d.org/wiki/index.php?n=Main.BasicCollisionDetection
     }
@@ -59,7 +62,9 @@ class Camera
         glfwSetCursorPos(window,800/2,600/2);
         hangle += mousesens * deltatime *  (400 - xpos);
         vangle += mousesens * deltatime *  (300 - ypos);
+
         direction = glm::vec3(cos(vangle)* sin(hangle),sin(vangle),cos(vangle)* cos(hangle));
+        //right = glm::vec3(1.0,0.0,0.0);
         right = glm::vec3(sin(hangle - 3.14f/2.0f),0,cos(hangle - 3.14f/2.0f));
         up = glm::vec3(glm::cross(right,direction));
         if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS)
@@ -86,19 +91,12 @@ class Camera
         }
 
 
-        if(vangle < -90.0f)
-        {
-            vangle = -90.0f;
-        }
-        if(vangle > 90.0f)
-        {
-            vangle = 90.0f;
-        }
-        glm::mat4 initmatrix = glm::mat4(1.0f);
-        initmatrix[3][0] = position.x;
-        initmatrix[3][1] = position.y;
-        initmatrix[3][2] = position.z;
-        NewtonBodySetMatrix(CameraBody,&initmatrix[0][0]);
+
+
+        TransformationMatrix[0][3] = position.x;
+        TransformationMatrix[1][3] = position.y;
+        TransformationMatrix[2][3] = position.z;
+        cout << TransformationMatrix[2][3] << endl;
         // cout << vangle << endl;
         // cout << hangle << endl;
         ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
@@ -106,13 +104,27 @@ class Camera
         prevtime = glfwGetTime();
 
     }
+    dMatrix GetCollisionTransformation()
+    {
+        dMatrix output;
+        output.m_posit.m_x = position.x;
+        output.m_posit.m_y = position.y;
+        output.m_posit.m_z = position.z;
+        output.m_up = dVector(0.0f,1.0f,0.0f);
+        output.m_right = dVector(1.0f,0.0f,0.0f);
+        output.m_front = dVector(0.0f,0.0f,0.0f);
+        return output;
+    }
+
     glm::mat4 ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
     glm::mat4 ViewMatrix= (glm::lookAt(position,position+direction,up));
     glm::vec3 position;
+    glm::mat4 TransformationMatrix = glm::mat4(1.0f);
     float deltatime;
-private:
     NewtonCollision *CameraAABB;
-    NewtonBody *CameraBody;
+private:
+
+
     glm::vec3 direction;
     glm::vec3 right;
     glm::vec3 up;
@@ -400,6 +412,29 @@ public:
         MainCamera.CameraUpdateLoop();
 
         render();
+        collide();
+    }
+    void collide()
+    {
+        int collision;
+        float *contacts;
+        dMatrix identmat;
+        identmat.m_posit.m_x = 0.0;
+        identmat.m_posit.m_y = 0.0;
+        identmat.m_posit.m_z = 0.0;
+        identmat.m_up = dVector(0.0,1.0f,0.0);
+        identmat.m_right = dVector(1.0f,0.0f,0.0f);
+        identmat.m_front = dVector(0.0f,0.0f,0.0f);
+        if (!identmat.SanityCheck())
+        {
+             this_thread::sleep_for(chrono::seconds(99999));
+        }
+        collision = NewtonCollisionCollide(CollisionWorld,40,MainCamera.CameraAABB,&MainCamera.GetCollisionTransformation()[0][0],MapCollision,&identmat[0][0],contacts,NULL,NULL,0,0,0);
+        if(collision > 0)
+        {
+            glClearColor(0.0,0.0,0.0,1.0);
+        }
+
     }
 
     void godhelpme()
@@ -432,9 +467,9 @@ public:
 
         }
         NewtonTreeCollisionEndBuild(MapCollision,0);
-        glm::mat4 ident = glm::mat4(1.0f);
 
-        MapBody = NewtonCreateDynamicBody(CollisionWorld,MapCollision,&ident[0][0]);
+
+
         MainCamera.CameraInitCollision();
 
         //make this do something

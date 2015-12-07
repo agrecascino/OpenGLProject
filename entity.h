@@ -16,16 +16,21 @@ public:
         y=yp;
         z = zp;
         vertexdata = data;
-        originalx = x;
-        originaly = y;
-        originalz = z;
+
         setxy(x,y,z);
 
     }
 
     void setxy(float xp, float yp, float zp)
     {
-
+        TransformationMatrix[0][3] = xp;
+        TransformationMatrix[1][3] = yp;
+        TransformationMatrix[2][3] = zp;
+        for(int i =0;i < vertexdata.size();i++)
+        {
+            transform.push_back(vertexdata[i] * TransformationMatrix);
+        }
+        /*
         x = xp;
         y = yp;
         z = zp;
@@ -46,6 +51,7 @@ public:
             vertexdata[i].z += zp;
         }
         xymod = true;
+        */
     }
     void sethp(int hp)
     {
@@ -88,18 +94,21 @@ public:
             setupindexdata();
         cout << "rendering entity" << endl;
 
-        posvec.insert(posvec.end(),vertexdata.begin(),vertexdata.end());
+        posvec.insert(posvec.end(),transform.begin(),transform.end());
 
         indices.insert(indices.end(),indexdata.begin(),indexdata.end());
     }
 
 private:
+    glm::mat4 TransformationMatrix = glm::mat4(1.0f);
     int arraycurrent;
     bool setup = false;
     int health;
     float originalx,originaly,originalz;
     float x,y,z;
+
     vector<glm::vec4> vertexdata;
+    vector<glm::vec4> transform;
     vector<unsigned short> indexdata;
     bool isadded = false;
     bool xymod= false;

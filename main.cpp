@@ -104,16 +104,10 @@ class Camera
         prevtime = glfwGetTime();
 
     }
-    dMatrix GetCollisionTransformation()
+    glm::mat4 GetCollisionTransformation()
     {
-        dMatrix output;
-        output.m_posit.m_x = position.x;
-        output.m_posit.m_y = position.y;
-        output.m_posit.m_z = position.z;
-        output.m_up = dVector(0.0f,1.0f,0.0f);
-        output.m_right = dVector(1.0f,0.0f,0.0f);
-        output.m_front = dVector(0.0f,0.0f,0.0f);
-        return output;
+
+        return glm::transpose(TransformationMatrix);
     }
 
     glm::mat4 ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
@@ -416,20 +410,17 @@ public:
     }
     void collide()
     {
-        int collision;
-        float *contacts;
-        dMatrix identmat;
-        identmat.m_posit.m_x = 0.0;
-        identmat.m_posit.m_y = 0.0;
-        identmat.m_posit.m_z = 0.0;
-        identmat.m_up = dVector(0.0,1.0f,0.0);
-        identmat.m_right = dVector(1.0f,0.0f,0.0f);
-        identmat.m_front = dVector(0.0f,0.0f,0.0f);
-        if (!identmat.SanityCheck())
-        {
-             this_thread::sleep_for(chrono::seconds(99999));
-        }
-        collision = NewtonCollisionCollide(CollisionWorld,40,MainCamera.CameraAABB,&MainCamera.GetCollisionTransformation()[0][0],MapCollision,&identmat[0][0],contacts,NULL,NULL,0,0,0);
+        int collision = 0;
+        float* a = new float[320];
+        float* b = new float[320];
+        float* c = new float[320];
+
+
+
+
+
+
+        collision = NewtonCollisionCollide(CollisionWorld,40,MainCamera.CameraAABB,&MainCamera.GetCollisionTransformation()[0][0],MapCollision,&glm::transpose(glm::mat4(1.0f))[0][0],(float*)a,(float*)b,(float*)c,0,0,0);
         if(collision > 0)
         {
             glClearColor(0.0,0.0,0.0,1.0);

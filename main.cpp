@@ -44,7 +44,7 @@ class Camera
         initmatrix[3][1] = position.y;
         initmatrix[3][2] = position.z;
         //const	float initialTM[16]	=	{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0, 0, 0, 0.0f, 1.0f };
-        CameraAABB = NewtonCreateBox(CollisionWorld,1,2,1,0,NULL);
+        CameraAABB = NewtonCreateBox(CollisionWorld,1,3,1,0,NULL);
 
         //http://newtondynamics.com/wiki/index.php5?title=Super_simple_quick-start_with_48_lines_of_C_example
         //http://irrlicht3d.org/wiki/index.php?n=Main.BasicCollisionDetection
@@ -414,16 +414,20 @@ public:
         float* a = new float[320];
         float* b = new float[320];
         float* c = new float[320];
+        long long *stuff = new long long[320];
+        long long *stuff2 = new long long[320];
+        //*((char*) NULL ) = 0;
 
 
 
-
-
-
-        collision = NewtonCollisionCollide(CollisionWorld,40,MainCamera.CameraAABB,&MainCamera.GetCollisionTransformation()[0][0],MapCollision,&glm::transpose(glm::mat4(1.0f))[0][0],(float*)a,(float*)b,(float*)c,0,0,0);
+        collision = NewtonCollisionCollide(CollisionWorld,10,MainCamera.CameraAABB,&MainCamera.GetCollisionTransformation()[0][0],MapCollision,&glm::transpose(glm::mat4(1.0f))[0][0],(float*)a,(float*)b,(float*)c,(long long*)stuff,(long long*)stuff2,0);
         if(collision > 0)
         {
             glClearColor(0.0,0.0,0.0,1.0);
+        }
+        else
+        {
+            glClearColor(1.0,0.0,0.0,1.0);
         }
 
     }

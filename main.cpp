@@ -67,24 +67,24 @@ class Camera
         //right = glm::vec3(1.0,0.0,0.0);
         right = glm::vec3(sin(hangle - 3.14f/2.0f),0,cos(hangle - 3.14f/2.0f));
         up = glm::vec3(glm::cross(right,direction));
-        if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS)
+        if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS && !wdis)
         {
             position += direction * deltatime * speed;
             //rigidbody->translate(btVector3(direction.x,direction.y,direction.z) * deltatime * speed);
 
         }
-        if(glfwGetKey(window,GLFW_KEY_S) == GLFW_PRESS)
+        if(glfwGetKey(window,GLFW_KEY_S) == GLFW_PRESS && !sdis)
         {
             position -= direction * deltatime * speed;
             //rigidbody->translate(-(btVector3(direction.x,direction.y,direction.z) * deltatime * speed));
         }
-        if(glfwGetKey(window,GLFW_KEY_D) == GLFW_PRESS)
+        if(glfwGetKey(window,GLFW_KEY_D) == GLFW_PRESS && !ddis)
         {
             position += right * deltatime * speed;
 
             //rigidbody->translate(btVector3(right.x,right.y,right.z) * deltatime * speed);
         }
-        if(glfwGetKey(window,GLFW_KEY_A) == GLFW_PRESS)
+        if(glfwGetKey(window,GLFW_KEY_A) == GLFW_PRESS && !adis)
         {
             position -= right * deltatime * speed;
             //rigidbody->translate(-(btVector3(right.x,right.y,right.z) * deltatime * speed));
@@ -109,6 +109,7 @@ class Camera
 
         return glm::transpose(TransformationMatrix);
     }
+    bool wdis = false,sdis = false,adis = false,ddis = false;
 
     glm::mat4 ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
     glm::mat4 ViewMatrix= (glm::lookAt(position,position+direction,up));
@@ -411,12 +412,15 @@ public:
     void collide()
     {
         int collision = 0;
-        float* a = new float[320];
-        float* b = new float[320];
+        float* a = new float[30];
+        float* b = new float[30];
         float* c = new float[320];
+        vector<glm::vec3> avec;
+        avec.erase(avec.begin(),avec.end());
         long long *stuff = new long long[320];
         long long *stuff2 = new long long[320];
         //*((char*) NULL ) = 0;
+
 
 
 
@@ -428,6 +432,25 @@ public:
         else
         {
             glClearColor(1.0,0.0,0.0,1.0);
+        }
+        if(collision > 0)
+        {
+        for(int i =0;i < 30;i += 3)
+        {
+            avec.push_back(glm::vec3(a[i],a[i+1],a[i+2]));
+        }
+        }
+        else
+        {
+            MainCamera.wdis = false;
+            MainCamera.ddis = false;
+            MainCamera.adis = false;
+            MainCamera.sdis = false;
+        }
+        for(int i =0;i < avec.size();i++)
+         {
+
+
         }
 
     }

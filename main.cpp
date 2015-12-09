@@ -97,7 +97,7 @@ class Camera
         ModelFacing.posx = false;
         ModelFacing.posy = false;
         ModelFacing.posz = false;
-        if(direction.x >= 0){
+        if(direction.x >= 0 ){
             ModelFacing.posx = true;
         }
         else{
@@ -457,13 +457,10 @@ public:
             avec.push_back(glm::vec3(a[i],a[i+1],a[i+2]));
         }
         }
-        else
-        {
-            MainCamera.wdis = false;
-            MainCamera.ddis = false;
-            MainCamera.adis = false;
-            MainCamera.sdis = false;
-        }
+        MainCamera.wdis = false;
+        MainCamera.ddis = false;
+        MainCamera.adis = false;
+        MainCamera.sdis = false;
         for(int i =0;i < avec.size();i++)
          {
            /*
@@ -473,6 +470,11 @@ public:
                MainCamera.position.x += 0.05;
            }
            */
+           if(MainCamera.position.x > avec[i].x && MainCamera.ModelFacing.negx )
+           {
+               MainCamera.position.x += 1.005;
+               MainCamera.wdis = true;
+           }
            if(MainCamera.position.y > avec[i].y && MainCamera.ModelFacing.negy)
            {
                MainCamera.position.y += 0.005;

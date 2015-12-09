@@ -91,15 +91,37 @@ class Camera
         }
 
 
-
-
+        ModelFacing.negx = false;
+        ModelFacing.negy = false;
+        ModelFacing.negz = false;
+        ModelFacing.posx = false;
+        ModelFacing.posy = false;
+        ModelFacing.posz = false;
+        if(direction.x >= 0){
+            ModelFacing.posx = true;
+        }
+        else{
+            ModelFacing.negx = true;
+        }
+        if(direction.y >= 0.15){
+            ModelFacing.posy = true;
+        }
+        else if(direction.y <= -0.15){
+            ModelFacing.negy = true;
+        }
+        if(direction.z >= 0){
+            ModelFacing.posz = true;
+        }
+        else{
+            ModelFacing.negz = true;
+        }
         TransformationMatrix[0][3] = position.x;
         TransformationMatrix[1][3] = position.y;
         TransformationMatrix[2][3] = position.z;
         cout << TransformationMatrix[2][3] << endl;
         // cout << vangle << endl;
         // cout << hangle << endl;
-        ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
+        ProjectionMatrix = glm::perspective(initfov,16.0f/9.0f,0.01f,1000.0f);
         ViewMatrix= (glm::lookAt(position,position+direction,up));
         prevtime = glfwGetTime();
 
@@ -110,13 +132,15 @@ class Camera
         return glm::transpose(TransformationMatrix);
     }
     bool wdis = false,sdis = false,adis = false,ddis = false;
-
-    glm::mat4 ProjectionMatrix = glm::perspective(initfov,4.0f/3.0f,0.1f,100.0f);
+    orientation ModelFacing;
+    glm::mat4 ProjectionMatrix = glm::perspective(initfov,16.0f/9.0f,0.01f,100.0f);
     glm::mat4 ViewMatrix= (glm::lookAt(position,position+direction,up));
     glm::vec3 position;
     glm::mat4 TransformationMatrix = glm::mat4(1.0f);
     float deltatime;
     NewtonCollision *CameraAABB;
+
+
 private:
 
 
@@ -425,14 +449,7 @@ public:
 
 
         collision = NewtonCollisionCollide(CollisionWorld,10,MainCamera.CameraAABB,&MainCamera.GetCollisionTransformation()[0][0],MapCollision,&glm::transpose(glm::mat4(1.0f))[0][0],(float*)a,(float*)b,(float*)c,(long long*)stuff,(long long*)stuff2,0);
-        if(collision > 0)
-        {
-            glClearColor(0.0,0.0,0.0,1.0);
-        }
-        else
-        {
-            glClearColor(1.0,0.0,0.0,1.0);
-        }
+
         if(collision > 0)
         {
         for(int i =0;i < 30;i += 3)
@@ -449,9 +466,40 @@ public:
         }
         for(int i =0;i < avec.size();i++)
          {
+           /*
+           if(MainCamera.position.x > avec[i].x && MainCamera.ModelFacing.negx)
+           {
+               MainCamera.sdis = true;
+               MainCamera.position.x += 0.05;
+           }
+           */
+           if(MainCamera.position.y > avec[i].y && MainCamera.ModelFacing.negy)
+           {
+               MainCamera.position.y += 0.005;
+           }
+           if(MainCamera.position.y < avec[i].y && MainCamera.ModelFacing.posy)
+           {
+               MainCamera.position.y -= 0.005;
+           }
+           if(MainCamera.position.x < avec[i].x && MainCamera.ModelFacing.posx)
+           {
+               MainCamera.wdis = true;
+               MainCamera.position.x -= 0.005;
+           }
 
+           if(MainCamera.position.z > avec[i].z && MainCamera.ModelFacing.negz)
+           {
+               MainCamera.wdis = true;
+               MainCamera.position.z += 0.005;
+           }
+           if(MainCamera.position.z < avec[i].z && MainCamera.ModelFacing.posz)
+           {
+               MainCamera.wdis = true;
+               MainCamera.position.z -= 0.005;
+           }
+           //finish collision using right and -right and fix one x direction
 
-        }
+         }
 
     }
 
@@ -616,7 +664,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
     glfwWindowHint(GLFW_SAMPLES,64);
-    window = glfwCreateWindow(800,600,"title",NULL,NULL);
+    window = glfwCreateWindow(1280,720,"title",NULL,NULL);
     glfwMakeContextCurrent(window);
     glewExperimental = true;
     glewInit();

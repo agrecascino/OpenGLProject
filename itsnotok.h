@@ -16,6 +16,14 @@ GLuint MVPloc;
 glm::mat4 MVP;
 vector<unsigned short> indices;
 vector<GLuint> ebuffer;
-
+struct orientation
+{
+    bool posx = false;
+    bool posy = false;
+    bool posz = false;
+    bool negx = false;
+    bool negy = false;
+    bool negz = false;
+};
 
 #endif // ITSNOTOK_H

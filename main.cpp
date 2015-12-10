@@ -438,9 +438,13 @@ public:
         int collision = 0;
         float* a = new float[30];
         float* b = new float[30];
-        float* c = new float[320];
+        float* c = new float[30];
         vector<glm::vec3> avec;
+        vector<glm::vec3> bvec;
+        vector<glm::vec3> cvec;
         avec.erase(avec.begin(),avec.end());
+        bvec.erase(bvec.begin(),bvec.end());
+        cvec.erase(cvec.begin(),cvec.end());
         long long *stuff = new long long[320];
         long long *stuff2 = new long long[320];
         //*((char*) NULL ) = 0;
@@ -455,7 +459,10 @@ public:
         for(int i =0;i < 30;i += 3)
         {
             avec.push_back(glm::vec3(a[i],a[i+1],a[i+2]));
+            bvec.push_back(glm::vec3(b[i],b[i+1],b[i+2]));
+            cvec.push_back(glm::vec3(c[i],c[i+1],c[i+2]));
         }
+
         }
         MainCamera.wdis = false;
         MainCamera.ddis = false;
@@ -470,6 +477,8 @@ public:
                MainCamera.position.x += 0.05;
            }
            */
+          //normal + pen try??????????????????
+            /*
            if(MainCamera.position.x > avec[i].x && MainCamera.ModelFacing.negx )
            {
                MainCamera.position.x += 1.005;
@@ -498,7 +507,7 @@ public:
            {
                MainCamera.wdis = true;
                MainCamera.position.z -= 0.005;
-           }
+           }*/
            //finish collision using right and -right and fix one x direction
 
          }

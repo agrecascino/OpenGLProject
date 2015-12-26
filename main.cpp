@@ -21,6 +21,7 @@
 using namespace std;
 
 //FT_Library ft;
+
 //FT_Face face;
 class Camera
 {   public:
@@ -55,7 +56,7 @@ class Camera
     {
         xpos = 0;
         ypos = 0;
-
+       prevpos = position;
         deltatime = glfwGetTime() - prevtime;
         glfwGetCursorPos(window,&xpos,&ypos);
         //  cout << xpos << " " << ypos << endl;
@@ -139,6 +140,7 @@ class Camera
     glm::mat4 TransformationMatrix = glm::mat4(1.0f);
     float deltatime;
     NewtonCollision *CameraAABB;
+    glm::vec3 prevpos;
 
 
 private:
@@ -307,7 +309,6 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 
 
     // Check the program
-
     glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
 
     glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
@@ -456,20 +457,20 @@ public:
 
         if(collision > 0)
         {
-        for(int i =0;i < 30;i += 3)
-        {
-            avec.push_back(glm::vec3(a[i],a[i+1],a[i+2]));
-            bvec.push_back(glm::vec3(b[i],b[i+1],b[i+2]));
-            cvec.push_back(glm::vec3(c[i],c[i+1],c[i+2]));
-        }
+       // for(int i =0;i < 30;i += 3)
+        //{
+            //avec.push_back(glm::vec3(a[i],a[i+1],a[i+2]));
+            //bvec.push_back(glm::vec3(b[i],b[i+1],b[i+2]));
+          //  cvec.push_back(glm::vec3(c[i],c[i+1],c[i+2]));
+        //}
 
-        }
-        MainCamera.wdis = false;
-        MainCamera.ddis = false;
-        MainCamera.adis = false;
-        MainCamera.sdis = false;
-        for(int i =0;i < avec.size();i++)
-         {
+      //  }
+        //MainCamera.wdis = false;
+        //MainCamera.ddis = false;
+        //MainCamera.adis = false;
+        //MainCamera.sdis = false;
+       // for(int i =0;i < avec.size();i++)
+        // {
            /*
            if(MainCamera.position.x > avec[i].x && MainCamera.ModelFacing.negx)
            {
@@ -510,7 +511,22 @@ public:
            }*/
            //finish collision using right and -right and fix one x direction
 
-         }
+       //  }
+            if(MainCamera.position != MainCamera.prevpos)
+            {
+            MainCamera.position = MainCamera.prevpos;
+            }
+           // else
+          // {
+           //     MainCamera.position.y += 1;
+           // }
+
+        }
+       // else
+       // {
+         // MainCamera.position.y -= 0.1;
+       // }
+
 
     }
 
@@ -529,7 +545,7 @@ public:
         NewtonTreeCollisionBeginBuild(MapCollision);
         for(int i = 0;i < vec.size();i += 3)
         {
-            float Mapping[9] = {vec[i].x,vec[i].y,vec[i].z,vec[i+2].x,vec[i+2].y,vec[i+2].z,vec[i+3].x,vec[i+3].y,vec[i+3].z};
+            float Mapping[9] = {vec[i].x,vec[i].y,vec[i].z,vec[i+1].x,vec[i+1].y,vec[i+1].z,vec[i+2].x,vec[i+2].y,vec[i+2].z};
             NewtonTreeCollisionAddFace(MapCollision,3,(float*)Mapping,3*sizeof(float),1);
             //helpme.addTriangle(btVector3(vec[i].x,vec[i].y,vec[i].z),btVector3(vec[i+1].x,vec[i+1].y,vec[i+1].z),btVector3(vec[i+2].x,vec[i+2].y,vec[i+2].z));
            /* points_yo.push_back(Point(vec[i].x,vec[i].y,vec[i].z));

@@ -14,7 +14,7 @@
 #include <cstdio>
 #include "moduleplayer.h"
 //#include <regex>
-#include <dMatrix.h>
+
 #include "entity.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
@@ -23,141 +23,7 @@ using namespace std;
 //FT_Library ft;
 
 //FT_Face face;
-class Camera
-{   public:
-    dMatrix matrix;
 
-    Camera(glm::vec3 pos, float h,float v, float fov, float s = 3, float mousespeed = 0.005f)
-    {
-
-        hangle = h;
-        position = pos;
-        vangle = v;
-        initfov = fov;
-        speed = s;
-        mousesens = mousespeed;
-
-    }
-    void CameraInitCollision()
-    {
-        glm::mat4 initmatrix = glm::mat4(1.0f);
-        initmatrix[3][0] = position.x;
-        initmatrix[3][1] = position.y;
-        initmatrix[3][2] = position.z;
-        //const	float initialTM[16]	=	{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0, 0, 0, 0.0f, 1.0f };
-        CameraAABB = NewtonCreateBox(CollisionWorld,1,3,1,0,NULL);
-
-        //http://newtondynamics.com/wiki/index.php5?title=Super_simple_quick-start_with_48_lines_of_C_example
-        //http://irrlicht3d.org/wiki/index.php?n=Main.BasicCollisionDetection
-    }
-
-
-    void CameraUpdateLoop()
-    {
-        xpos = 0;
-        ypos = 0;
-       prevpos = position;
-        deltatime = glfwGetTime() - prevtime;
-        glfwGetCursorPos(window,&xpos,&ypos);
-        //  cout << xpos << " " << ypos << endl;
-        glfwSetCursorPos(window,800/2,600/2);
-        hangle += mousesens * deltatime *  (400 - xpos);
-        vangle += mousesens * deltatime *  (300 - ypos);
-
-        direction = glm::vec3(cos(vangle)* sin(hangle),sin(vangle),cos(vangle)* cos(hangle));
-        //right = glm::vec3(1.0,0.0,0.0);
-        right = glm::vec3(sin(hangle - 3.14f/2.0f),0,cos(hangle - 3.14f/2.0f));
-        up = glm::vec3(glm::cross(right,direction));
-        if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS && !wdis)
-        {
-            position += direction * deltatime * speed;
-            //rigidbody->translate(btVector3(direction.x,direction.y,direction.z) * deltatime * speed);
-
-        }
-        if(glfwGetKey(window,GLFW_KEY_S) == GLFW_PRESS && !sdis)
-        {
-            position -= direction * deltatime * speed;
-            //rigidbody->translate(-(btVector3(direction.x,direction.y,direction.z) * deltatime * speed));
-        }
-        if(glfwGetKey(window,GLFW_KEY_D) == GLFW_PRESS && !ddis)
-        {
-            position += right * deltatime * speed;
-
-            //rigidbody->translate(btVector3(right.x,right.y,right.z) * deltatime * speed);
-        }
-        if(glfwGetKey(window,GLFW_KEY_A) == GLFW_PRESS && !adis)
-        {
-            position -= right * deltatime * speed;
-            //rigidbody->translate(-(btVector3(right.x,right.y,right.z) * deltatime * speed));
-        }
-
-
-        ModelFacing.negx = false;
-        ModelFacing.negy = false;
-        ModelFacing.negz = false;
-        ModelFacing.posx = false;
-        ModelFacing.posy = false;
-        ModelFacing.posz = false;
-        if(direction.x >= 0 ){
-            ModelFacing.posx = true;
-        }
-        else{
-            ModelFacing.negx = true;
-        }
-        if(direction.y >= 0.15){
-            ModelFacing.posy = true;
-        }
-        else if(direction.y <= -0.15){
-            ModelFacing.negy = true;
-        }
-        if(direction.z >= 0){
-            ModelFacing.posz = true;
-        }
-        else{
-            ModelFacing.negz = true;
-        }
-        TransformationMatrix[0][3] = position.x;
-        TransformationMatrix[1][3] = position.y;
-        TransformationMatrix[2][3] = position.z;
-        cout << TransformationMatrix[2][3] << endl;
-        // cout << vangle << endl;
-        // cout << hangle << endl;
-        ProjectionMatrix = glm::perspective(initfov,16.0f/9.0f,0.01f,1000.0f);
-        ViewMatrix= (glm::lookAt(position,position+direction,up));
-        prevtime = glfwGetTime();
-
-    }
-    glm::mat4 GetCollisionTransformation()
-    {
-
-        return glm::transpose(TransformationMatrix);
-    }
-    bool wdis = false,sdis = false,adis = false,ddis = false;
-    orientation ModelFacing;
-    glm::mat4 ProjectionMatrix = glm::perspective(initfov,16.0f/9.0f,0.01f,100.0f);
-    glm::mat4 ViewMatrix= (glm::lookAt(position,position+direction,up));
-    glm::vec3 position;
-    glm::mat4 TransformationMatrix = glm::mat4(1.0f);
-    float deltatime;
-    NewtonCollision *CameraAABB;
-    glm::vec3 prevpos;
-
-
-private:
-
-
-    glm::vec3 direction;
-    glm::vec3 right;
-    glm::vec3 up;
-    float prevtime;
-    double xpos,ypos;
-    float hangle;
-    float vangle;
-    float initfov;
-    float speed;
-    float mousesens;
-};
-Camera MainCamera(glm::vec3(0,0,0),3.14f,0.0f,45.0f,3,0.05f);
 GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path){
 
 
@@ -457,20 +323,24 @@ public:
 
         if(collision > 0)
         {
-       // for(int i =0;i < 30;i += 3)
-        //{
-            //avec.push_back(glm::vec3(a[i],a[i+1],a[i+2]));
-            //bvec.push_back(glm::vec3(b[i],b[i+1],b[i+2]));
-          //  cvec.push_back(glm::vec3(c[i],c[i+1],c[i+2]));
-        //}
-
+        for(int i =0;i < 30;i += 3)
+        {
+            avec.push_back(glm::vec3(a[i],a[i+1],a[i+2]));
+            bvec.push_back(glm::vec3(b[i],b[i+1],b[i+2]));
+            cvec.push_back(glm::vec3(c[i],c[i+1],c[i+2]));
+        }
+        vector<Collision> collisions;
+        for(int i = 0; i < avec.size();i++)
+        {
+            collisions.push_back(Collision(avec[i],bvec[i],cvec[i]));
+        }
       //  }
         //MainCamera.wdis = false;
         //MainCamera.ddis = false;
         //MainCamera.adis = false;
         //MainCamera.sdis = false;
-       // for(int i =0;i < avec.size();i++)
-        // {
+        for(int i =0;i < collisions.size();i++)
+        {
            /*
            if(MainCamera.position.x > avec[i].x && MainCamera.ModelFacing.negx)
            {
@@ -478,54 +348,60 @@ public:
                MainCamera.position.x += 0.05;
            }
            */
+
           //normal + pen try??????????????????
-            /*
+           /*
            if(MainCamera.position.x > avec[i].x && MainCamera.ModelFacing.negx )
            {
-               MainCamera.position.x += 1.005;
-               MainCamera.wdis = true;
+               MainCamera.position.x = MainCamera.prevpos.x;
            }
            if(MainCamera.position.y > avec[i].y && MainCamera.ModelFacing.negy)
            {
-               MainCamera.position.y += 0.005;
+               MainCamera.position.y = MainCamera.prevpos.y;
            }
            if(MainCamera.position.y < avec[i].y && MainCamera.ModelFacing.posy)
            {
-               MainCamera.position.y -= 0.005;
+               MainCamera.position.y =  MainCamera.prevpos.y;
            }
            if(MainCamera.position.x < avec[i].x && MainCamera.ModelFacing.posx)
            {
-               MainCamera.wdis = true;
-               MainCamera.position.x -= 0.005;
+
+               MainCamera.position.z =MainCamera.prevpos.x;
            }
 
            if(MainCamera.position.z > avec[i].z && MainCamera.ModelFacing.negz)
            {
-               MainCamera.wdis = true;
-               MainCamera.position.z += 0.005;
+
+               MainCamera.position.z = MainCamera.prevpos.z;
            }
            if(MainCamera.position.z < avec[i].z && MainCamera.ModelFacing.posz)
            {
-               MainCamera.wdis = true;
-               MainCamera.position.z -= 0.005;
+
+               MainCamera.position.z = MainCamera.prevpos.z;
            }*/
            //finish collision using right and -right and fix one x direction
+            if(MainCamera.position != MainCamera.prevpos && !collisions[i].isfloor)
+             {
+             MainCamera.position -= MainCamera.position - MainCamera.prevpos;
 
-       //  }
-            if(MainCamera.position != MainCamera.prevpos)
+             }
+            else
             {
-            MainCamera.position = MainCamera.prevpos;
+                MainCamera.position.y = MainCamera.prevpos.y;
             }
+
+        }
+
            // else
           // {
            //     MainCamera.position.y += 1;
            // }
 
         }
-       // else
-       // {
-         // MainCamera.position.y -= 0.1;
-       // }
+       else
+       {
+         MainCamera.position.y -= 0.2;
+       }
 
 
     }

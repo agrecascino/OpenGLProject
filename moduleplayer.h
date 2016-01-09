@@ -4,12 +4,13 @@
 #include <string>
 #include <portaudio.h>
 #include <fstream>
-#include <libopenmpt_stream_callbacks_file.h>
+#include <libopenmpt/libopenmpt_stream_callbacks_file.h>
+
 #include <cstdint>
 #include <thread>
 #include <chrono>
 #include <sstream>
-#include <libopenmpt.h>
+#include <libopenmpt/libopenmpt.h>
 using namespace std;
 
 void playsong(string bob)
